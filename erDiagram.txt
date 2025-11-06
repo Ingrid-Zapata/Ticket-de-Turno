@@ -1,0 +1,62 @@
+erDiagram
+
+    PERSONA ||--o{ TICKET : solicita
+    NIVEL ||--o{ TICKET : nivel
+    MUNICIPIO ||--o{ OFICINA : contiene
+    OFICINA ||--o{ HORARIO : tiene
+    MUNICIPIO ||--o{ TICKET : municipio
+    ASUNTO ||--o{ TICKET : asunto
+    OFICINA ||--o{ TICKET : atiende
+
+    PERSONA {
+        int id_persona PK
+        varchar nombre_completo
+        varchar curp
+        varchar nombre
+        varchar paterno
+        varchar materno
+        varchar telefono
+        varchar celular
+        varchar correo
+    }
+
+    TICKET {
+        int id_ticket PK
+        int numero_turno
+        int id_persona FK
+        int id_nivel FK
+        int id_municipio FK
+        int id_oficina FK
+        int id_asunto FK
+        datetime fecha_registro
+    }
+
+    NIVEL {
+        int id_nivel PK
+        varchar nombre_nivel
+    }
+
+    MUNICIPIO {
+        int id_municipio PK
+        varchar nombre_municipio
+    }
+
+    OFICINA {
+        int id_oficina PK
+        varchar nombre_oficina
+        varchar direccion
+        int id_municipio FK
+    }
+
+    HORARIO {
+        int id_horario PK
+        int id_oficina FK
+        varchar dia_semana
+        time hora_inicio
+        time hora_fin
+    }
+
+    ASUNTO {
+        int id_asunto PK
+        varchar nombre_asunto
+    }

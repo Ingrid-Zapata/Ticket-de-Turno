@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Administración de Catálogos{% endblock %}
+
+{% block content %}
+  <div class="ticket-container">
+    <h1>Administración de Catálogos</h1>
+
+    <p>Manage los catálogos: Nivel, Municipio y Asunto.</p>
+
+    <div class="form-row">
+      <div class="form-group" style="flex:1">
+        <h3>Nivel</h3>
+        <div id="nivelSection">
+          <div>
+            <input type="text" id="nivelName" placeholder="Nuevo nivel">
+            <button id="nivelAdd" class="primary">Agregar</button>
+          </div>
+          <table id="nivelTable" style="width:100%; margin-top:8px;"></table>
+        </div>
+      </div>
+
+      <div class="form-group" style="flex:1">
+        <h3>Municipio</h3>
+        <div id="municipioSection">
+          <div>
+            <input type="text" id="municipioName" placeholder="Nuevo municipio">
+            <button id="municipioAdd" class="primary">Agregar</button>
+          </div>
+          <table id="municipioTable" style="width:100%; margin-top:8px;"></table>
+        </div>
+      </div>
+
+      <div class="form-group" style="flex:1">
+        <h3>Asunto</h3>
+        <div id="asuntoSection">
+          <div>
+            <input type="text" id="asuntoName" placeholder="Nuevo asunto">
+            <button id="asuntoAdd" class="primary">Agregar</button>
+          </div>
+          <table id="asuntoTable" style="width:100%; margin-top:8px;"></table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='js/catalogs.js') }}"></script>
+{% endblock %}

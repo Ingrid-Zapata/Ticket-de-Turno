@@ -1,0 +1,231 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f6f9;
+  margin: 0;
+  padding: 30px;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  background-color: #ffe0b2;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+}
+
+.ticket-container {
+  max-width: 1000px;
+  margin: auto;
+  background: white;
+  border-radius: 12px;
+  padding: 25px 35px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+  border-color: #ff6600;
+  outline: none;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 3px;
+  min-height: 16px;
+}
+
+button {
+  background-color: #ff6600;
+  color: white;
+  font-weight: bold;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #e55a00;
+  transform: scale(1.05);
+}
+
+.center {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.codigo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.codigo-container img {
+  width: 160px;
+  height: auto;
+}
+
+.resultado {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.hidden {
+  display: none;
+}
+
+#continuarBtn {
+  margin-top: 20px;
+}
+
+/* Estilos para la sección de búsqueda y modificación */
+.buscar-turno {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid #e9ecef;
+}
+
+.buscar-turno h2 {
+  color: #495057;
+  margin-bottom: 20px;
+}
+
+.buscar-turno .form-row {
+  margin-bottom: 20px;
+}
+
+#resultadoBusqueda {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: white;
+}
+
+#resultadoBusqueda h3 {
+  color: #495057;
+  margin-bottom: 20px;
+}
+
+#formModificar {
+  margin-top: 20px;
+}
+
+#pdfActualizado {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+#pdfActualizado h4 {
+  margin: 0 0 10px 0;
+}
+
+#pdfLink {
+  display: inline-block;
+  background-color: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 5px;
+  text-decoration: none;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+#pdfLink:hover {
+  background-color: #218838;
+}
+
+.primary {
+  background-color: #007bff;
+}
+
+.primary:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+}
+
+/* Menú principal */
+.main-nav {
+  background-color: #ff6600;
+  border-radius: 12px;
+  padding: 10px 20px;
+  margin-bottom: 30px;
+}
+
+.main-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+
+.main-nav ul li a {
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+}
+
+.main-nav ul li a:hover,
+.main-nav ul li a:focus {
+  background-color: #e55a00;
+  color: #fff;
+  outline: none;
+}
+
+/* Responsive para móvil */
+@media (max-width: 600px) {
+  .main-nav ul {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

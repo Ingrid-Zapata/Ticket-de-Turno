@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Administración de Turnos{% endblock %}
+
+{% block content %}
+  <div class="ticket-container">
+    <h1>Administración de Turnos</h1>
+
+    <div class="buscar-turno">
+      <h2>Buscar Turnos (por CURP o Nombre)</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>CURP:</label>
+          <input type="text" id="adminCurp" placeholder="CURP">
+        </div>
+        <div class="form-group">
+          <label>Nombre (completo o parcial):</label>
+          <input type="text" id="adminNombre" placeholder="Nombre">
+        </div>
+      </div>
+      <div class="center">
+        <button id="adminBuscarBtn" class="primary">Buscar</button>
+      </div>
+    </div>
+
+    <div id="adminResultados" style="margin-top:20px;">
+      <h3>Resultados</h3>
+      <table id="adminTable" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Número</th>
+            <th>CURP</th>
+            <th>Nombre</th>
+            <th>Municipio</th>
+            <th>Nivel</th>
+            <th>Asunto</th>
+            <th>Estatus</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="adminEditar" class="hidden" style="margin-top:20px;">
+      <h3>Editar Turno</h3>
+      <form id="adminEditForm">
+        <input type="hidden" name="id">
+        <div class="form-row">
+          <div class="form-group">
+            <label>CURP:</label>
+            <input type="text" name="curp">
+          </div>
+          <div class="form-group">
+            <label>Número de turno:</label>
+            <input type="number" name="numero_turno">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre completo:</label>
+            <input type="text" name="nombreCompleto">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre:</label>
+            <input type="text" name="nombre">
+          </div>
+          <div class="form-group">
+            <label>Paterno:</label>
+            <input type="text" name="paterno">
+          </div>
+          <div class="form-group">
+            <label>Materno:</label>
+            <input type="text" name="materno">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Teléfono:</label>
+            <input type="text" name="telefono">
+          </div>
+          <div class="form-group">
+            <label>Correo:</label>
+            <input type="email" name="correo">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nivel:</label>
+            <input type="text" name="nivel">
+          </div>
+          <div class="form-group">
+            <label>Municipio:</label>
+            <input type="text" name="municipio">
+          </div>
+          <div class="form-group">
+            <label>Asunto:</label>
+            <input type="text" name="asunto">
+          </div>
+        </div>
+        <div class="center">
+          <button type="submit" class="primary">Guardar Cambios</button>
+          <button type="button" id="adminCancelar">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

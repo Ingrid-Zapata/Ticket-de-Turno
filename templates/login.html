@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Script de Google reCAPTCHA -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+
+  <div class="ticket-container">
+    <h1>🔐 Iniciar Sesión</h1>
+
+    <form method="POST">
+
+      <label>Usuario:</label>
+      <input type="text" name="usuario" required>
+
+      <label>Contraseña:</label>
+      <input type="password" name="password" required>
+
+      <!-- CAPTCHA -->
+      <div class="g-recaptcha" data-sitekey="6Ldm5wIsAAAAAFtUDOlVYJJkJrGQxnYp3E4VBoiF"></div>
+
+      <button type="submit">Entrar</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <p style="color:red;">{{ msg }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+  </div>
+
+</body>
+</html>

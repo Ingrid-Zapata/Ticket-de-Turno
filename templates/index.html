@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Ticket{% endblock %}
+
+{% block content %}
+  <div class="ticket-container">
+    <h1>🎟️ Ticket de Turno</h1>
+        <div class="buscar-turno">
+          <h2>Buscar y Modificar Turno</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Número de Turno:</label>
+              <input type="number" id="numeroBusqueda" placeholder="Ingrese número de turno" required>
+            </div>
+            <div class="form-group">
+              <label>CURP:</label>
+              <input type="text" id="curpBusqueda" placeholder="Ingrese CURP" required>
+            </div>
+          </div>
+          <div class="center">
+            <button id="buscarBtn" class="primary">Buscar Turno</button>
+          </div>
+          <div id="resultadoBusqueda" class="hidden">
+            <h3>Datos del Turno Encontrado</h3>
+            <form id="formModificar">
+              <input type="hidden" name="numero_turno">
+              <input type="hidden" name="curp">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nombre completo:</label>
+                  <input type="text" name="nombreCompleto">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nombre:</label>
+                  <input type="text" name="nombre">
+                </div>
+                <div class="form-group">
+                  <label>Paterno:</label>
+                  <input type="text" name="paterno">
+                </div>
+                <div class="form-group">
+                  <label>Materno:</label>
+                  <input type="text" name="materno">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Teléfono:</label>
+                  <input type="text" name="telefono">
+                </div>
+                <div class="form-group">
+                  <label>Celular:</label>
+                  <input type="text" name="celular">
+                </div>
+                <div class="form-group">
+                  <label>Correo:</label>
+                  <input type="email" name="correo">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nivel:</label>
+                  <select name="nivel">
+                    <option value="">Seleccione...</option>
+                    <option value="preescolar">Preescolar</option>
+                    <option value="primaria">Primaria</option>
+                    <option value="secundaria">Secundaria</option>
+                    <option value="bachillerato">Bachillerato</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Municipio:</label>
+                  <select name="municipio">
+                    <option value="">Seleccione...</option>
+                    <option value="saltillo">Saltillo</option>
+                    <option value="torreon">Torreón</option>
+                    <option value="monclova">Monclova</option>
+                    <option value="matamoros">Matamoros</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Asunto:</label>
+                  <select name="asunto">
+                    <option value="">Seleccione...</option>
+                    <option value="inscripcion">Inscripción</option>
+                    <option value="consulta">Consulta</option>
+                    <option value="reporte">Reporte</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+              </div>
+              <div class="center">
+                <button type="submit" class="primary">Actualizar Turno</button>
+              </div>
+            </form>
+            <div id="pdfActualizado" class="hidden">
+              <h4>✅ Turno Actualizado</h4>
+              <p>Se ha generado un nuevo PDF con los datos actualizados.</p>
+              <a id="pdfLink" href="#" target="_blank" class="button">Ver PDF Actualizado</a>
+            </div>
+          </div>
+        </div>
+    <br>
+    <!-- FORMULARIO -->
+    <form id="ticketForm">
+      <h2>Generacion de un nuevo ticket</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre completo de quien realizará el trámite:</label>
+          <input type="text" name="nombreCompleto">
+          <small class="error"></small>
+        </div>
+        <div class="form-group">
+          <label>CURP:</label>
+          <input type="text" name="curp">
+          <small class="error"></small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre:</label>
+          <input type="text" name="nombre">
+          <small class="error"></small>
+        </div>
+        <div class="form-group">
+          <label>Paterno:</label>
+          <input type="text" name="paterno">
+          <small class="error"></small>
+        </div>
+        <div class="form-group">
+          <label>Materno:</label>
+          <input type="text" name="materno">
+          <small class="error"></small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Teléfono:</label>
+          <input type="text" name="telefono">
+          <small class="error"></small>
+        </div>
+        <div class="form-group">
+          <label>Celular:</label>
+          <input type="text" name="celular">
+          <small class="error"></small>
+        </div>
+        <div class="form-group">
+          <label>Correo:</label>
+          <input type="email" name="correo">
+          <small class="error"></small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>¿Nivel al que desea ingresar o que ya cursa el alumno?</label>
+          <select name="nivel">
+            <option value="">Seleccione...</option>
+            <option value="preescolar">Preescolar</option>
+            <option value="primaria">Primaria</option>
+            <option value="secundaria">Secundaria</option>
+            <option value="bachillerato">Bachillerato</option>
+          </select>
+          <small class="error"></small>
+        </div>
+        <div class="form-group">
+          <label>Municipio donde estudia el alumno:</label>
+          <select name="municipio">
+            <option value="">Seleccione...</option>
+            <option value="saltillo">Saltillo</option>
+            <option value="torreon">Torreón</option>
+            <option value="monclova">Monclova</option>
+            <option value="matamoros">Matamoros</option>
+          </select>
+          <small class="error"></small>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+          <label>Seleccione el asunto que va a tratar:</label>
+          <select name="asunto">
+            <option value="">Seleccione...</option>
+            <option value="inscripcion">Inscripción</option>
+            <option value="consulta">Consulta</option>
+            <option value="reporte">Reporte</option>
+            <option value="otro">Otro</option>
+          </select>
+          <small class="error"></small>
+        </div>
+      </div>
+
+      <div class="center">
+        <button type="submit">Generar Turno</button>
+      </div>
+
+
+
+    </form>
+
+    <!-- RESULTADO -->
+    <div id="resultado" class="resultado hidden">
+      <h2>✅ Datos del Turno Generado</h2>
+      <div id="resumen"></div>
+      <div class="codigo-container">
+        <img id="qrCode" alt="Código QR">
+        <img id="barcode" alt="Código de Barras">
+      </div>
+      <button id="continuarBtn">Continuar</button>
+    </div>
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
