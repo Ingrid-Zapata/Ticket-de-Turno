@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Administración de Usuarios{% endblock %}
+
+{% block content %}
+  <div class="ticket-container">
+    <h1>👥 Administración de Usuarios</h1>
+
+    <!-- Formulario para crear nuevo usuario -->
+    <div class="crear-usuario">
+      <h2>Crear Nuevo Usuario</h2>
+      <form id="formCrearUsuario">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre de usuario:</label>
+            <input type="text" name="username" required placeholder="usuario123" minlength="4">
+            <small>Mínimo 4 caracteres</small>
+          </div>
+          <div class="form-group">
+            <label>Correo electrónico:</label>
+            <input type="email" name="email" required placeholder="usuario@correo.com">
+            <small>Email único en el sistema</small>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Contraseña:</label>
+            <input type="password" name="password" required placeholder="Mínimo 6 caracteres" minlength="6">
+            <small>Mínimo 6 caracteres</small>
+          </div>
+          <div class="form-group">
+            <label>Rol:</label>
+            <select name="role" required>
+              <option value="user">Usuario</option>
+              <option value="admin">Administrador</option>
+            </select>
+            <small>Selecciona el nivel de acceso</small>
+          </div>
+        </div>
+        <div class="center">
+          <button type="submit" class="primary">Crear Usuario</button>
+        </div>
+      </form>
+    </div>
+
+    <hr class="hr-spacing">
+
+    <!-- Lista de usuarios existentes -->
+    <div class="lista-usuarios">
+      <h2>Usuarios Registrados</h2>
+      <table id="tableUsuarios">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Se llena dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='js/admin_users.js') }}"></script>
+{% endblock %}

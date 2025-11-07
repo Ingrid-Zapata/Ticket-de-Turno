@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Registro de Usuario{% endblock %}
+
+{% block content %}
+  <div class="ticket-container">
+    <div class="registro-container">
+      <h1>📝 Crear Cuenta</h1>
+      <p>Registra tu cuenta para acceder al sistema de turnos</p>
+
+      <form id="formRegistro">
+        <div class="form-group">
+          <label>Nombre de usuario:</label>
+          <input type="text" name="username" required placeholder="Elige un nombre de usuario" minlength="4">
+          <small class="help-text">Mínimo 4 caracteres</small>
+        </div>
+
+        <div class="form-group">
+          <label>Correo electrónico:</label>
+          <input type="email" name="email" required placeholder="tu@correo.com">
+          <small class="help-text">Se usará para notificaciones</small>
+        </div>
+
+        <div class="form-group">
+          <label>Contraseña:</label>
+          <input type="password" name="password" required placeholder="Crea una contraseña segura" minlength="6">
+          <small class="help-text">Mínimo 6 caracteres</small>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar contraseña:</label>
+          <input type="password" name="confirm_password" required placeholder="Repite tu contraseña">
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de usuario:</label>
+          <input type="text" name="role" value="Usuario" disabled class="input-disabled-role">
+          <small class="help-text">Los usuarios públicos solo pueden registrarse como "Usuario"</small>
+        </div>
+
+        <div class="center">
+          <button type="submit" class="primary">Registrarse</button>
+          <a href="{{ url_for('login') }}" class="btn-secondary">Ya tengo cuenta</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('formRegistro').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const password = formData.get('password');
+      const confirmPassword = formData.get('confirm_password');
+
+      // Validar contraseñas
+      if (password !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+
+      if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres');
+        return;
+      }
+
+      const email = formData.get('email');
+      if (!email || !email.includes('@')) {
+        alert('Por favor ingresa un correo electrónico válido');
+        return;
+      }
+
+      const datos = {
+        username: formData.get('username'),
+        email: email,
+        password: password
+      };
+
+      try {
+        const res = await fetch('/api/registro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          throw new Error(data.error || 'Error al registrar usuario');
+        }
+
+        alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        window.location.href = '/login';
+
+      } catch (error) {
+        alert('Error: ' + error.message);
+        console.error(error);
+      }
+    });
+  </script>
+{% endblock %}

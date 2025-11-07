@@ -41,6 +41,16 @@ app.secret_key = "clave_secreta_para_sesiones"  # Es necesario para sesiones
 
 SECRET_KEY_RECAPTCHA = "6Ldm5wIsAAAAAO9Vx_wxdEvZymkTPJ3OYX-hiQW9"  # Tu secret key
 
+@app.route('/')
+def home():
+    """Ruta principal que redirige a inicio"""
+    return redirect(url_for('inicio'))
+
+@app.route('/inicio')
+def inicio():
+    return render_template('inicio.html')
+
+
 def require_admin(f):
     """Decorator sencillo para rutas API que requieren rol 'admin'.
     Devuelve JSON con 401/403 según corresponda."""
@@ -53,20 +63,17 @@ def require_admin(f):
         return f(*args, **kwargs)
     return wrapper
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         usuario = request.form['usuario']
         password = request.form['password']
 
-        # Validar CAPTCHA
+        # VALIDACIÓN IGUAL QUE YA TENÍAS
         recaptcha_response = request.form.get('g-recaptcha-response')
         r = requests.post(
             'https://www.google.com/recaptcha/api/siteverify',
-            data={
-                'secret': SECRET_KEY_RECAPTCHA,
-                'response': recaptcha_response
-            }
+            data={'secret': SECRET_KEY_RECAPTCHA, 'response': recaptcha_response}
         )
         resultado = r.json()
 
@@ -74,41 +81,35 @@ def login():
             flash("⚠️ Debes confirmar que NO eres un robot")
             return redirect(url_for('login'))
 
-        # Validar usuario y contraseña
         password_hash = hashlib.sha256(password.encode()).hexdigest()
-        conexion = DB()
-        query = "SELECT * FROM users WHERE username = %s AND password_hash = %s"
-        user = conexion.fetch_one(query, (usuario, password_hash))
-        conexion.close()
+        
+        # Usar ORM para verificar credenciales
+        with orm_session() as db:
+            user = db.query(User).filter(
+                User.username == usuario,
+                User.password_hash == password_hash
+            ).first()
+            
+            if user:
+                session['usuario'] = usuario
+                session['role'] = user.role
+                session['user_id'] = user.id
+                
+                # Actualizar last_login
+                user.last_login = func.now()
+                db.commit()
+                
+                return redirect(url_for('inicio'))
 
-        if user:
-            session['usuario'] = usuario
-            # intentar obtener rol desde ORM y guardarlo en sesión
-            try:
-                with orm_session() as db:
-                    u = db.query(User).filter(User.username == usuario).first()
-                    session['role'] = u.role if u and getattr(u, 'role', None) else 'user'
-            except Exception:
-                session['role'] = 'user'
-            return redirect(url_for('index'))
-        else:
-            flash("❌ Usuario o contraseña incorrectos")
-            return redirect(url_for('login'))
+        flash("❌ Usuario o contraseña incorrectos")
+        return redirect(url_for('login'))
 
-    return render_template('login.html')
+    return render_template('login.html')  # ✅ Aquí sí se muestra el login
+
 
 @app.route('/index')
 def index():
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
-
-    # Si el usuario es admin → dashboard admin
-    if session.get('role') == 'admin':
-        return redirect(url_for('admin_turnos'))
-
-    # Si el usuario es usuario normal → pantalla normal
-    return render_template('index.html', usuario=session['usuario'])
-
+    return render_template('index.html')
 
 
 @app.route('/admin/turnos')
@@ -127,6 +128,20 @@ def admin_catalogs():
     if session.get('role') != 'admin':
         abort(403)
     return render_template('admin_catalogs.html')
+
+
+@app.route('/admin/users')
+def admin_users():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+    if session.get('role') != 'admin':
+        abort(403)
+    return render_template('admin_users.html')
+
+
+@app.route('/registro')
+def registro():
+    return render_template('registro.html')
 
 
 @app.route('/api/buscar-turno', methods=['POST'])
@@ -311,7 +326,11 @@ def admin_search_turnos():
                     'numero_turno': turno.numero_turno,
                     'curp': persona.curp if persona else None,
                     'nombre_completo': persona.nombre_completo if persona else None,
+                    'nombre': persona.nombre if persona else None,
+                    'paterno': persona.paterno if persona else None,
+                    'materno': persona.materno if persona else None,
                     'telefono': persona.telefono if persona else None,
+                    'celular': persona.celular if persona else None,
                     'correo': persona.correo if persona else None,
                     'nivel': nivel.nombre_nivel if nivel else None,
                     'municipio': municipio.nombre_municipio if municipio else None,
@@ -362,6 +381,63 @@ def set_turno_status(turno_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/admin/dashboard-stats', methods=['GET'])
+@require_admin
+def dashboard_stats():
+    """Obtiene estadísticas de turnos por estatus y municipio para el dashboard"""
+    try:
+        municipio_filter = request.args.get('municipio', None)
+        
+        with orm_session() as db:
+            # Query base
+            query = db.query(
+                Municipio.nombre_municipio,
+                Turno.estatus,
+                func.count(Turno.id).label('count')
+            ).join(Municipio, Turno.id_municipio == Municipio.id_municipio)
+            
+            # Aplicar filtro de municipio si existe
+            if municipio_filter and municipio_filter != 'todos':
+                query = query.filter(Municipio.nombre_municipio == municipio_filter)
+            
+            # Agrupar por municipio y estatus
+            results = query.group_by(Municipio.nombre_municipio, Turno.estatus).all()
+            
+            # Obtener lista de todos los municipios para el filtro
+            municipios = db.query(Municipio.nombre_municipio).distinct().all()
+            municipios_list = [m.nombre_municipio for m in municipios]
+            
+            # Organizar datos para las gráficas
+            stats_by_municipio = {}
+            total_pendiente = 0
+            total_resuelto = 0
+            
+            for municipio, estatus, count in results:
+                if municipio not in stats_by_municipio:
+                    stats_by_municipio[municipio] = {'Pendiente': 0, 'Resuelto': 0}
+                stats_by_municipio[municipio][estatus] = count
+                
+                if estatus == 'Pendiente':
+                    total_pendiente += count
+                elif estatus == 'Resuelto':
+                    total_resuelto += count
+            
+            return jsonify({
+                'success': True,
+                'stats': {
+                    'by_municipio': stats_by_municipio,
+                    'total': {
+                        'Pendiente': total_pendiente,
+                        'Resuelto': total_resuelto
+                    },
+                    'municipios': municipios_list
+                }
+            })
+    except Exception as e:
+        print('Error en dashboard_stats:', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 _CATALOG_MAP = {
     'nivel': {
         'model': Nivel,
@@ -379,6 +455,27 @@ _CATALOG_MAP = {
         'name_field': 'nombre_asunto'
     }
 }
+
+
+@app.route('/api/public/catalogs/<string:cat>', methods=['GET'])
+def public_catalogs(cat):
+    """Endpoint público para obtener catálogos (nivel, municipio, asunto) - sin autenticación"""
+    cat = cat.lower()
+    if cat not in _CATALOG_MAP:
+        return jsonify({'success': False, 'error': 'Catálogo inválido'}), 400
+
+    cfg = _CATALOG_MAP[cat]
+    Model = cfg['model']
+    name_field = cfg['name_field']
+
+    try:
+        with orm_session() as db:
+            items = db.query(Model).order_by(getattr(Model, name_field)).all()
+            out = [{'id': getattr(i, cfg['pk']), 'name': getattr(i, name_field)} for i in items]
+            return jsonify({'success': True, 'items': out})
+    except Exception as e:
+        print('Error en public_catalogs:', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/catalogs/<string:cat>', methods=['GET', 'POST'])
@@ -546,7 +643,201 @@ def api_create_turno():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('inicio'))
+
+
+# ===== API de Gestión de Usuarios =====
+
+@app.route('/api/registro', methods=['POST'])
+def api_registro():
+    """Registro público de usuarios (solo rol 'user')"""
+    try:
+        data = request.get_json() or {}
+        username = data.get('username', '').strip()
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
+
+        if not username or not password or not email:
+            return jsonify({'success': False, 'error': 'Usuario, email y contraseña son requeridos'}), 400
+
+        if len(username) < 4:
+            return jsonify({'success': False, 'error': 'El usuario debe tener al menos 4 caracteres'}), 400
+
+        if len(password) < 6:
+            return jsonify({'success': False, 'error': 'La contraseña debe tener al menos 6 caracteres'}), 400
+
+        if '@' not in email:
+            return jsonify({'success': False, 'error': 'El correo electrónico no es válido'}), 400
+
+        with orm_session() as db:
+            # Verificar si el usuario ya existe
+            existing_user = db.query(User).filter(User.username == username).first()
+            if existing_user:
+                return jsonify({'success': False, 'error': 'El usuario ya existe'}), 400
+
+            # Verificar si el email ya existe
+            existing_email = db.query(User).filter(User.email == email).first()
+            if existing_email:
+                return jsonify({'success': False, 'error': 'El correo electrónico ya está registrado'}), 400
+
+            # Crear nuevo usuario (siempre como 'user' en registro público)
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            new_user = User(
+                username=username,
+                email=email,
+                password_hash=password_hash,
+                role='user'  # Registro público siempre crea usuarios normales
+            )
+            db.add(new_user)
+            db.flush()
+
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': new_user.id,
+                    'username': new_user.username,
+                    'role': new_user.role
+                }
+            })
+
+    except Exception as e:
+        print('Error en api_registro:', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/users', methods=['GET', 'POST'])
+@require_admin
+def admin_users_api():
+    """Gestión de usuarios (solo administradores)"""
+    try:
+        with orm_session() as db:
+            if request.method == 'GET':
+                # Listar usuarios
+                users = db.query(User).all()
+                return jsonify({
+                    'success': True,
+                    'users': [{
+                        'id': u.id,
+                        'username': u.username,
+                        'email': u.email,
+                        'role': u.role
+                    } for u in users]
+                })
+
+            # POST - Crear usuario (admin puede crear admin o user)
+            data = request.get_json() or {}
+            username = data.get('username', '').strip()
+            email = data.get('email', '').strip()
+            password = data.get('password', '').strip()
+            role = data.get('role', 'user').strip()
+
+            if not username or not password or not email:
+                return jsonify({'success': False, 'error': 'Usuario, email y contraseña son requeridos'}), 400
+
+            if len(username) < 4:
+                return jsonify({'success': False, 'error': 'El usuario debe tener al menos 4 caracteres'}), 400
+
+            if len(password) < 6:
+                return jsonify({'success': False, 'error': 'La contraseña debe tener al menos 6 caracteres'}), 400
+
+            if '@' not in email:
+                return jsonify({'success': False, 'error': 'El correo electrónico no es válido'}), 400
+
+            if role not in ('user', 'admin'):
+                return jsonify({'success': False, 'error': 'Rol inválido'}), 400
+
+            # Verificar si el usuario ya existe
+            existing_user = db.query(User).filter(User.username == username).first()
+            if existing_user:
+                return jsonify({'success': False, 'error': 'El usuario ya existe'}), 400
+
+            # Verificar si el email ya existe
+            existing_email = db.query(User).filter(User.email == email).first()
+            if existing_email:
+                return jsonify({'success': False, 'error': 'El correo electrónico ya está registrado'}), 400
+
+            # Crear nuevo usuario
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            new_user = User(
+                username=username,
+                email=email,
+                password_hash=password_hash,
+                role=role
+            )
+            db.add(new_user)
+            db.flush()
+
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': new_user.id,
+                    'username': new_user.username,
+                    'email': new_user.email,
+                    'role': new_user.role
+                }
+            })
+
+    except Exception as e:
+        print('Error en admin_users_api:', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+@require_admin
+def delete_user(user_id):
+    """Eliminar usuario"""
+    try:
+        with orm_session() as db:
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return jsonify({'success': False, 'error': 'Usuario no encontrado'}), 404
+
+            # No permitir eliminar el usuario actual
+            if user.username == session.get('usuario'):
+                return jsonify({'success': False, 'error': 'No puedes eliminar tu propio usuario'}), 400
+
+            db.delete(user)
+            return jsonify({'success': True})
+
+    except Exception as e:
+        print('Error al eliminar usuario:', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/admin/users/<int:user_id>/role', methods=['PUT'])
+@require_admin
+def update_user_role(user_id):
+    """Cambiar rol de usuario"""
+    try:
+        data = request.get_json() or {}
+        new_role = data.get('role')
+
+        if new_role not in ('user', 'admin'):
+            return jsonify({'success': False, 'error': 'Rol inválido'}), 400
+
+        with orm_session() as db:
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return jsonify({'success': False, 'error': 'Usuario no encontrado'}), 404
+
+            # No permitir cambiar el rol del usuario actual
+            if user.username == session.get('usuario'):
+                return jsonify({'success': False, 'error': 'No puedes cambiar tu propio rol'}), 400
+
+            user.role = new_role
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'role': user.role
+                }
+            })
+
+    except Exception as e:
+        print('Error al cambiar rol:', e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

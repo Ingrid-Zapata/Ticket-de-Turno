@@ -10,7 +10,8 @@ engine = create_engine(DB_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 def get_session():
-    """Yield a new SQLAlchemy session. Use as context manager: with get_session() as session:"""
+    """Produce (cede) una nueva sesión de SQLAlchemy. 
+    Úsese como un administrador de contexto: with get_session() as session:"""
     session = SessionLocal()
     try:
         yield session

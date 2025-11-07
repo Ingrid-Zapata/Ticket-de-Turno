@@ -1,14 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block extra_head %}
   <!-- Script de Google reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-</head>
-<body>
+{% endblock %}
 
+{% block content %}
   <div class="ticket-container">
     <h1>🔐 Iniciar Sesión</h1>
 
@@ -29,12 +28,14 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, msg in messages %}
-          <p style="color:red;">{{ msg }}</p>
+          <p class="error-text">{{ msg }}</p>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-  </div>
+    <div class="text-center-mt">
+      <p>¿No tienes cuenta? <a href="{{ url_for('registro') }}" class="link-primary-bold">Regístrate aquí</a></p>
+    </div>
 
-</body>
-</html>
+  </div>
+{% endblock %}

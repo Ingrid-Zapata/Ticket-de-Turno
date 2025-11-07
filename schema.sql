@@ -92,8 +92,10 @@ END $$
 DELIMITER ;
 
 -- 6) Datos iniciales
+-- Usuario administrador por defecto
+-- Usuario: admin / Contraseña: admin123
 INSERT INTO users (username, email, password_hash, role) VALUES
-('admin', 'admin@example.com', SHA2('admin123', 256), 'admin');
+('admin', 'admin@sistema.com', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'admin');
 
 INSERT INTO nivel (nombre_nivel) VALUES
 ('Preescolar'), ('Primaria'), ('Secundaria'), ('Bachillerato');

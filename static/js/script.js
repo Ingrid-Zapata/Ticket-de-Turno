@@ -1,3 +1,95 @@
+// Cargar catálogos dinámicamente
+async function cargarCatalogos(preseleccion = {}) {
+  try {
+    // Cargar niveles
+    const nivelesRes = await fetch('/api/public/catalogs/nivel');
+    const nivelesData = await nivelesRes.json();
+    if (nivelesData.success) {
+      const selectsNivel = document.querySelectorAll('select[name="nivel"]');
+      selectsNivel.forEach(select => {
+        const currentValue = preseleccion.nivel || select.value;
+        select.innerHTML = '<option value="">Seleccione...</option>';
+        nivelesData.items.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.name.toLowerCase();
+          option.textContent = item.name;
+          select.appendChild(option);
+        });
+        // Intentar pre-seleccionar el valor
+        if (currentValue) {
+          const normalizedValue = currentValue.toLowerCase().trim();
+          // Buscar coincidencia exacta o parcial
+          const matchingOption = Array.from(select.options).find(opt => 
+            opt.value.toLowerCase() === normalizedValue || 
+            opt.textContent.toLowerCase() === normalizedValue
+          );
+          if (matchingOption) {
+            select.value = matchingOption.value;
+          }
+        }
+      });
+    }
+
+    // Cargar municipios
+    const municipiosRes = await fetch('/api/public/catalogs/municipio');
+    const municipiosData = await municipiosRes.json();
+    if (municipiosData.success) {
+      const selectsMunicipio = document.querySelectorAll('select[name="municipio"]');
+      selectsMunicipio.forEach(select => {
+        const currentValue = preseleccion.municipio || select.value;
+        select.innerHTML = '<option value="">Seleccione...</option>';
+        municipiosData.items.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.name.toLowerCase();
+          option.textContent = item.name;
+          select.appendChild(option);
+        });
+        // Intentar pre-seleccionar el valor
+        if (currentValue) {
+          const normalizedValue = currentValue.toLowerCase().trim();
+          const matchingOption = Array.from(select.options).find(opt => 
+            opt.value.toLowerCase() === normalizedValue || 
+            opt.textContent.toLowerCase() === normalizedValue
+          );
+          if (matchingOption) {
+            select.value = matchingOption.value;
+          }
+        }
+      });
+    }
+
+    // Cargar asuntos
+    const asuntosRes = await fetch('/api/public/catalogs/asunto');
+    const asuntosData = await asuntosRes.json();
+    if (asuntosData.success) {
+      const selectsAsunto = document.querySelectorAll('select[name="asunto"]');
+      selectsAsunto.forEach(select => {
+        const currentValue = preseleccion.asunto || select.value;
+        select.innerHTML = '<option value="">Seleccione...</option>';
+        asuntosData.items.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.name.toLowerCase();
+          option.textContent = item.name;
+          select.appendChild(option);
+        });
+        // Intentar pre-seleccionar el valor
+        if (currentValue) {
+          const normalizedValue = currentValue.toLowerCase().trim();
+          const matchingOption = Array.from(select.options).find(opt => 
+            opt.value.toLowerCase() === normalizedValue || 
+            opt.textContent.toLowerCase() === normalizedValue
+          );
+          if (matchingOption) {
+            select.value = matchingOption.value;
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error cargando catálogos:', error);
+  }
+}
+
 // Función para validar formulario
 function validarFormulario(form) {
   const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
@@ -40,12 +132,18 @@ function validarFormulario(form) {
 
   return valido;
 }
-  // Helper para setear campos de formulario de forma segura por name
-  function setFormField(formEl, name, value) {
-    const el = formEl.querySelector(`[name="${name}"]`);
-    if (!el) return;
-    el.value = value == null ? '' : value;
-  }
+
+// Helper para setear campos de formulario de forma segura por name
+function setFormField(formEl, name, value) {
+  const el = formEl.querySelector(`[name="${name}"]`);
+  if (!el) return;
+  el.value = value == null ? '' : value;
+}
+
+// Cargar catálogos al iniciar la página
+document.addEventListener('DOMContentLoaded', function() {
+  cargarCatalogos();
+});
 
 
 // Generar nuevo turno
@@ -159,19 +257,23 @@ document.getElementById('buscarBtn').addEventListener('click', async function() 
     const turno = result.turno;
     const form = document.getElementById('formModificar');
     
-  // Llenar formulario con datos encontrados (safe set)
-  setFormField(form, 'numero_turno', turno.numero_turno);
-  setFormField(form, 'curp', turno.curp);
-  setFormField(form, 'nombreCompleto', turno.nombre_completo || turno.nombre_completo);
-  setFormField(form, 'nombre', turno.nombre);
-  setFormField(form, 'paterno', turno.paterno);
-  setFormField(form, 'materno', turno.materno);
-  setFormField(form, 'telefono', turno.telefono);
-  setFormField(form, 'celular', turno.celular);
-  setFormField(form, 'correo', turno.correo);
-  setFormField(form, 'nivel', (turno.nivel || turno.nombre_nivel || '').toLowerCase());
-  setFormField(form, 'municipio', (turno.municipio || turno.nombre_municipio || '').toLowerCase());
-  setFormField(form, 'asunto', (turno.asunto || turno.nombre_asunto || '').toLowerCase());
+    // Llenar formulario con datos encontrados (safe set)
+    setFormField(form, 'numero_turno', turno.numero_turno);
+    setFormField(form, 'curp', turno.curp);
+    setFormField(form, 'nombreCompleto', turno.nombre_completo || turno.nombre_completo);
+    setFormField(form, 'nombre', turno.nombre);
+    setFormField(form, 'paterno', turno.paterno);
+    setFormField(form, 'materno', turno.materno);
+    setFormField(form, 'telefono', turno.telefono);
+    setFormField(form, 'celular', turno.celular);
+    setFormField(form, 'correo', turno.correo);
+    
+    // Recargar catálogos con preselección
+    await cargarCatalogos({
+      nivel: turno.nivel || turno.nombre_nivel || '',
+      municipio: turno.municipio || turno.nombre_municipio || '',
+      asunto: turno.asunto || turno.nombre_asunto || ''
+    });
 
     // Mostrar formulario de modificación
     document.getElementById('resultadoBusqueda').classList.remove('hidden');

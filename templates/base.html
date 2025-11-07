@@ -5,14 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}Sistema de Turnos{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
 
   <nav class="main-nav">
     <ul>
-      <li><a href="{{ url_for('index') }}">Inicio</a></li>
-      <li><a href="{{ url_for('index') }}">Nuevo Ticket</a></li>
-      <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+      <!-- Público y usuarios autenticados -->
+      <li><a href="{{ url_for('inicio') }}">Inicio</a></li>
+
+      {% if session.get('usuario') %}
+        {% if session.get('role') == 'admin' %}
+          <!-- Menú solo para admin -->
+          <li><a href="{{ url_for('admin_turnos') }}">Administrar Turnos</a></li>
+          <li><a href="{{ url_for('admin_catalogs') }}">Administrar Catálogos</a></li>
+          <li><a href="{{ url_for('admin_users') }}">Administrar Usuarios</a></li>
+        {% endif %}
+        
+        <!-- Menú cuando hay sesión -->
+        <li><a href="{{ url_for('index') }}">Generar Ticket</a></li>
+        <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+
+      {% else %}
+        <!-- Menú público cuando NO hay sesión -->
+        <li><a href="{{ url_for('login') }}">Iniciar Sesión</a></li>
+        <li><a href="{{ url_for('registro') }}">Registrarse</a></li>
+      {% endif %}
+      
     </ul>
   </nav>
 

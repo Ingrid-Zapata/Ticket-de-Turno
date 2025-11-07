@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Bienvenido{% endblock %}
+
+{% block content %}
+<div class="welcome-container">
+    <h1>👋 ¡Bienvenido al Sistema de Turnos!</h1>
+
+    {% if session.get('usuario') %}
+        <p>Hola <strong>{{ session.get('usuario') }}</strong>, ¿qué deseas realizar hoy?</p>
+
+        <div class="actions">
+            <a class="btn" href="{{ url_for('index') }}">🎫 Generar Nuevo Turno</a>
+
+            {% if session.get('role') == 'admin' %}
+                <a class="btn" href="{{ url_for('admin_turnos') }}">🛠 Administrar Turnos</a>
+                <a class="btn" href="{{ url_for('admin_catalogs') }}">📂 Administrar Catálogos</a>
+            {% endif %}
+            
+            <a class="btn btn-logout" href="{{ url_for('logout') }}">🚪 Cerrar Sesión</a>
+        </div>
+
+    {% else %}
+        <p>Para gestionar turnos o acceder a opciones administrativas, inicia sesión.</p>
+        <a class="btn" href="{{ url_for('login') }}">🔐 Iniciar Sesión</a>
+        <a class="btn" href="{{ url_for('index') }}">🎫 Generar Turno Público</a>
+    {% endif %}
+</div>
+
+{% endblock %}

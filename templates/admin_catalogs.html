@@ -6,44 +6,211 @@
   <div class="ticket-container">
     <h1>Administración de Catálogos</h1>
 
-    <p>Manage los catálogos: Nivel, Municipio y Asunto.</p>
+    <p>Gestione los catálogos: Nivel, Municipio y Asunto.</p>
+
+    <!-- Búsqueda/filtro global -->
+    <div class="search-section">
+      <input type="text" id="globalSearch" placeholder="🔍 Buscar en todos los catálogos..." class="global-search-input">
+    </div>
 
     <div class="form-row">
-      <div class="form-group" style="flex:1">
+      <div class="form-group flex-1">
         <h3>Nivel</h3>
         <div id="nivelSection">
           <div>
             <input type="text" id="nivelName" placeholder="Nuevo nivel">
             <button id="nivelAdd" class="primary">Agregar</button>
           </div>
-          <table id="nivelTable" style="width:100%; margin-top:8px;"></table>
+          <input type="text" class="catalog-search" data-target="nivelTable" placeholder="🔍 Buscar nivel...">
+          <table id="nivelTable" class="catalog-table"></table>
         </div>
       </div>
 
-      <div class="form-group" style="flex:1">
+      <div class="form-group flex-1">
         <h3>Municipio</h3>
         <div id="municipioSection">
           <div>
             <input type="text" id="municipioName" placeholder="Nuevo municipio">
             <button id="municipioAdd" class="primary">Agregar</button>
           </div>
-          <table id="municipioTable" style="width:100%; margin-top:8px;"></table>
+          <input type="text" class="catalog-search" data-target="municipioTable" placeholder="🔍 Buscar municipio...">
+          <table id="municipioTable" class="catalog-table"></table>
         </div>
       </div>
 
-      <div class="form-group" style="flex:1">
+      <div class="form-group flex-1">
         <h3>Asunto</h3>
         <div id="asuntoSection">
           <div>
             <input type="text" id="asuntoName" placeholder="Nuevo asunto">
             <button id="asuntoAdd" class="primary">Agregar</button>
           </div>
-          <table id="asuntoTable" style="width:100%; margin-top:8px;"></table>
+          <input type="text" class="catalog-search" data-target="asuntoTable" placeholder="🔍 Buscar asunto...">
+          <table id="asuntoTable" class="catalog-table"></table>
         </div>
       </div>
     </div>
 
   </div>
+
+  <!-- Modal para editar -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Editar Catálogo</h2>
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input type="text" id="editName" placeholder="Ingrese nuevo nombre">
+      </div>
+      <div class="modal-actions">
+        <button id="saveEdit" class="primary">Guardar</button>
+        <button id="cancelEdit" class="secondary">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!--
+  <style>
+    .search-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .catalog-search {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .catalog-search:focus {
+      outline: none;
+      border-color: #0078D4;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 30px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 20px;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .secondary {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .secondary:hover {
+      background: #5a6268;
+    }
+
+    table {
+      border-collapse: collapse;
+      background: white;
+    }
+
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #0078D4;
+      color: white;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    table tr.hidden {
+      display: none;
+    }
+
+    table button {
+      margin: 2px;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .cat-edit {
+      background: #28a745;
+      color: white;
+    }
+
+    .cat-edit:hover {
+      background: #218838;
+    }
+
+    .cat-del {
+      background: #dc3545;
+      color: white;
+    }
+
+    .cat-del:hover {
+      background: #c82333;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      font-style: italic;
+    }
+  </style> */
+  -->
 
   <script src="{{ url_for('static', filename='js/catalogs.js') }}"></script>
 {% endblock %}
